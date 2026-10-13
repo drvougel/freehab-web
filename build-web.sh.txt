@@ -1,0 +1,35 @@
+#!/bin/bash
+# SC7: ScummVM-Web mit AGS-Engine bauen und nach dist/ kopieren (WSL).
+# SC12: web/ (Hülle, PWA) als letzter Schritt nach dist/ kopieren.
+# Aufruf: tools/build-web.sh        (voller Build)
+#         tools/build-web.sh web    (nur web/ nach dist/ kopieren)
+set -e
+
+SRC=~/scummvm-rehab
+DST=/mnt/d/hermes/workspace/reHab-scumm/dist
+WEB="$(cd "$(dirname "$0")/.." && pwd)/web"
+
+copy_web() {
+  cp -r "$WEB/." "$DST/"
+  ls -l "$DST/index.html" "$DST/sw.js" "$DST/manifest.webmanifest"
+}
+
+if [ "${1:-}" = "web" ]; then
+  copy_web
+  exit 0
+fi
+
+cd "$SRC"
+export MAKEFLAGS=-j24
+./dists/emscripten/build.sh configure make dist \
+  --enable-mad --enable-ogg --enable-vorbis --enable-freetype2 --enable-zlib --enable-png \
+  --disable-all-engines --enable-engine=ags --disable-seq-midi
+
+grep -E "ENABLE_AGS|USE_(MAD|OGG|VORBIS|FREETYPE2|ZLIB|PNG)" config.mk
+
+cd "$SRC/build-emscripten"
+cp scummvm.html scummvm.js scummvm.wasm scummvm_fs.js "$DST/"
+cp -r data/. "$DST/data/"
+ls -l "$DST/scummvm.wasm"
+
+copy_web
