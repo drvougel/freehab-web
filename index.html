@@ -123,7 +123,8 @@
 <section aria-labelledby="h-los">
   <h2 id="h-los">Bereit für das Therapieziel?</h2>
   <p>Alle fünf Episoden sind spielbar – neu: Urs an der Luzerner Fasnacht. Es ist eine Testversion – nicht das fertige Spiel: Es kann noch wackeln, Texte, Bilder und Rätsel ändern sich, und Spielstände können bei Updates ungültig werden. Schau trotzdem rein – Urs freut sich.</p>
-  <div class="cta links"><a class="knopf" href="https://freehab-preview.fab0.cc/html/">Jetzt spielen</a></div>
+  <div class="cta links"><a class="knopf" href="https://freehab-preview.fab0.cc/html/">Jetzt spielen</a> <button class="knopf" id="installieren" type="button" hidden>Als App installieren</button></div>
+  <p id="ios-hinweis" hidden>Auf iPhone und iPad: im Safari-Menü <em>Teilen</em> → <em>Zum Home-Bildschirm</em>, dann startet das Spiel wie eine App.</p>
 </section>
 
 </main>
@@ -135,6 +136,15 @@
   </div>
 </footer>
 
-<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+// Als Webapp installieren: Knopf nur zeigen, wenn der Browser es anbietet (Chrome/Edge/Android); iOS bekommt einen Hinweis
+(() => {
+  const knopf = document.getElementById('installieren'); let angebot = null;
+  const installiert = matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone;
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); angebot = e; if (!installiert) knopf.hidden = false; });
+  knopf.addEventListener('click', async () => { if (!angebot) return; angebot.prompt(); try { await angebot.userChoice; } catch {} angebot = null; knopf.hidden = true; });
+  window.addEventListener('appinstalled', () => { knopf.hidden = true; });
+  if (!installiert && /iPhone|iPad|iPod/.test(navigator.userAgent)) document.getElementById('ios-hinweis').hidden = false;
+})();</script>
 </body>
 </html>
