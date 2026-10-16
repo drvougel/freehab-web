@@ -64,9 +64,25 @@
 <p>Wir erfassen dabei weder Namen noch eigene Texte oder E-Mail-Adressen. Deine IP-Adresse wird weder gespeichert noch ausgewertet. Die Statistikdaten werden nicht weitergegeben und nach 12 Monaten gelöscht.</p>
 <h3 id="abschalten">Statistik abschalten</h3>
 <p>Im Spiel unter «Stand» den Schalter «Anonyme Statistik» ausschalten, danach wird nichts mehr gesendet (deine Wahl bleibt lokal im Browser gespeichert). Sendet dein Browser «Do Not Track» oder «Global Privacy Control», bleibt die Statistik von Anfang an aus. Bei lokalen Testläufen und Direktstart-Links wird nichts übertragen.</p>
+<h3 id="besucher">Eindeutige Besucher</h3>
+<p>Damit wir wissen, wie viele verschiedene Menschen pro Tag vorbeikommen, zählt unser Server die Aufrufe von Startseite, Spiel und dieser Seite. Dazu bildet er aus deiner IP-Adresse, deinem Browser-Typ (User-Agent) und der Adresse dieser Website einen Schlüsselwert (SHA-256-Hash), vermischt mit einem Zufallswert, der jeden Tag (UTC) wechselt. Der Zufallswert des Vortags wird sofort gelöscht; danach lässt sich aus dem Hash weder deine IP-Adresse noch du als Person rekonstruieren, und an einem anderen Tag erkennen wir dich nicht wieder.</p>
+<p>Gespeichert werden nur: Tag, dieser Hash, die aufgerufene Seite (Start, Spiel, Lizenzen), die Uhrzeit des ersten Aufrufs, wie oft der Hash an dem Tag vorkam, die Herkunftsseite (nur der Domain-Name) und die grobe Bildschirmklasse (klein/mittel/gross). Es gibt keine Cookies, deine IP-Adresse und dein User-Agent werden nicht gespeichert, die Werte werden nicht weitergegeben und nach 13 Monaten gelöscht. Abschalten geht wie bei der Statistik: Schalter «Anonyme Statistik» im Spiel unter «Stand» oder «Do Not Track» / «Global Privacy Control» im Browser; dann wird auch nichts gezählt.</p>
 <h3 id="seitenaufrufe">Seitenaufrufe</h3>
 <p>Die Seitenaufrufe zählen wir mit Cloudflare Web Analytics, ohne Cookies und ohne Wiedererkennung einzelner Besucherinnen und Besucher.</p>
 <p class="fuss"><a class="zurueck" href="./">‹ Startseite</a> <a class="zurueck" href="https://freehab-preview.fab0.cc/html/">Jetzt spielen</a></p>
 </main>
+<script>
+// SC96: eindeutiger Besucher pro Tag, cookielos (Server bildet täglich wechselnden Hash, IP wird nicht gespeichert). Aus bei DNT/GPC, Statistik-Schalter, localhost.
+(() => { try {
+  const q = new URLSearchParams(location.search);
+  if (!window.__statistikTest && (/^(localhost|127.|[::1]|::1)/.test(location.hostname) || location.protocol === 'file:' || q.get('autostart') || q.get('room'))) return;
+  if (navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.globalPrivacyControl === true) return;
+  if (localStorage.getItem('rehab_statistik_aus') === '1') return;
+  let ref = ''; try { ref = new URL(document.referrer).hostname; if (ref === location.hostname) ref = ''; } catch {}
+  const b = Math.min(screen.width, screen.height);
+  const body = JSON.stringify({ seite: 'lizenzen', referrer: ref, schirm: b < 600 ? 'klein' : b < 1000 ? 'mittel' : 'gross' });
+  if (!(navigator.sendBeacon && navigator.sendBeacon('/api/besuch', new Blob([body], { type: 'text/plain;charset=UTF-8' })))) fetch('/api/besuch', { method: 'POST', body, keepalive: true }).catch(() => {});
+} catch {} })();
+</script>
 </body>
 </html>

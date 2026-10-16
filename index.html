@@ -132,10 +132,23 @@
 <footer>
   <div class="wrap">
     <p>Alle Figuren und die Klinik Haus Lehn sind frei erfunden. Ähnlichkeiten mit echten Therapeutinnen, Gurus oder Aschenbechern sind Zufall.</p>
-    <p>Keine Cookies, keine Werbung, keine externen Schriften oder Skripte; von sich aus erhebt das Spiel keine Personendaten. Eine anonyme Spielstatistik hilft uns, das Spiel zu verbessern (im Spiel unter «Stand» abschaltbar); Seitenaufrufe zählt Cloudflare Web Analytics ohne Cookies. Fehlerberichte gehen nur auf deinen Wunsch («Fehler melden») oder bei technischen Abstürzen an uns, ohne Speicherung deiner IP-Adresse. · <a href="lizenzen.html#datenschutz">Datenschutz</a> · <a href="lizenzen.html">Lizenzen und Quellen</a></p>
+    <p>Keine Cookies, keine Werbung, keine externen Schriften oder Skripte; von sich aus erhebt das Spiel keine Personendaten. Wie viele verschiedene Besucher pro Tag kommen, zählt der Server mit einem täglich wechselnden Schlüssel (ohne Cookies, deine IP-Adresse wird nicht gespeichert). Eine anonyme Spielstatistik hilft uns, das Spiel zu verbessern (im Spiel unter «Stand» abschaltbar, ebenso die Besucherzählung; «Do Not Track» wird respektiert); Seitenaufrufe zählt Cloudflare Web Analytics ohne Cookies. Fehlerberichte gehen nur auf deinen Wunsch («Fehler melden») oder bei technischen Abstürzen an uns, ohne Speicherung deiner IP-Adresse. · <a href="lizenzen.html#datenschutz">Datenschutz</a> · <a href="lizenzen.html">Lizenzen und Quellen</a></p>
   </div>
 </footer>
 
+<script>
+// SC96: eindeutiger Besucher pro Tag, cookielos (Server bildet täglich wechselnden Hash, IP wird nicht gespeichert). Aus bei DNT/GPC, Statistik-Schalter, localhost.
+(() => { try {
+  const q = new URLSearchParams(location.search);
+  if (!window.__statistikTest && (/^(localhost|127.|[::1]|::1)/.test(location.hostname) || location.protocol === 'file:' || q.get('autostart') || q.get('room'))) return;
+  if (navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.globalPrivacyControl === true) return;
+  if (localStorage.getItem('rehab_statistik_aus') === '1') return;
+  let ref = ''; try { ref = new URL(document.referrer).hostname; if (ref === location.hostname) ref = ''; } catch {}
+  const b = Math.min(screen.width, screen.height);
+  const body = JSON.stringify({ seite: 'start', referrer: ref, schirm: b < 600 ? 'klein' : b < 1000 ? 'mittel' : 'gross' });
+  if (!(navigator.sendBeacon && navigator.sendBeacon('/api/besuch', new Blob([body], { type: 'text/plain;charset=UTF-8' })))) fetch('/api/besuch', { method: 'POST', body, keepalive: true }).catch(() => {});
+} catch {} })();
+</script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 // Als Webapp installieren: Knopf nur zeigen, wenn der Browser es anbietet (Chrome/Edge/Android); iOS bekommt einen Hinweis
 (() => {
