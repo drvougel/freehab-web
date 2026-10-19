@@ -1,3 +1,3 @@
 # freehab-web
 
-Website von https://freehab.fab0.cc – automatisch erzeugt von `tools/publish.sh` (reHab-scumm b1d338d9). Nicht von Hand bearbeiten. Spiel-Vorschau: https://freehab-preview.fab0.cc · Quellcode ScummVM-Build: https://dev.fab0.cc/scummvm/
+Website von https://freehab.fab0.cc – automatisch erzeugt von `tools/publish.sh` (reHab-scumm e422ca19). Nicht von Hand bearbeiten. Spiel-Vorschau: https://freehab-preview.fab0.cc · Quellcode ScummVM-Build: https://dev.fab0.cc/scummvm/
